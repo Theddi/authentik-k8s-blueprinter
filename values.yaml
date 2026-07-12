@@ -1,0 +1,75 @@
+# Name of the generated ConfigMap for authentik chart values
+# blueprints:
+#   configMaps:
+#     - authentik-blueprints
+configMapName: authentik-blueprints
+
+# Default domain: forward-auth hosts become https://<name>.<domain>
+domain: example.com
+
+# Authentik default resource names; for provider generation
+authentik:
+  authorizationFlow: default-provider-authorization-implicit-consent
+  invalidationFlow: default-provider-invalidation-flow
+  signingKey: authentik Self-signed Certificate
+  defaultScopes: # scopes for OIDC providers
+    - openid
+    - profile
+    - email
+
+# Forward-auth app list
+# Each entry generates a proxy provider "<name>-provider" (mode
+# forward_single), an application with slug "<name>", and registers the
+# provider on the outpost.
+forwardAuth:
+  outpost: goauthentik.io/outposts/embedded # authentik's default outpost
+  # apps:
+  #   - name: myapp # -> https://myapp.example.com, slug myapp, provider myapp-provider
+  #   - name: other
+  #     host: https://other-host.example.com # optional hostname override
+
+# OIDC app list
+# Each entry generates an oauth2 provider "<name>-provider" (confidential, authorization_code + refresh_token)
+# and an application with slug "<name>". 
+# Client credentials are referenced via !Env from the authentik WORKER's environment; expose:
+# - <ENVPREFIX>_CLIENT_ID
+# - <ENVPREFIX>_CLIENT_SECRET there
+# -> authentik chart global.env/envFrom
+# envPrefix defaults to upper(name) + "_OIDC" (dashes to underscores), e.g. myapp -> MYAPP_OIDC_CLIENT_ID.
+oidcApps: []
+#   - name: myapp
+#     redirectUris:
+#       - https://myapp.example.com/oidc/callback
+#     envPrefix: MYAPP_OIDC     # optional override
+#     scopes: [openid, profile] # optional, defaults to authentik.defaultScopes
+
+# Roles, groups and users. KeyOf references are derived from names
+# (lowercased, spaces to dashes), so groups can reference roles and users
+# can reference groups defined here. User passwords are managed only when
+# passwordEnv is set (again an !Env into the worker environment) — note
+# the blueprint then ENFORCES that password on every apply.
+rbac: {}
+#   roles:
+#     - My Role
+#   groups:
+#     - name: admins
+#       superuser: true
+#       roles:
+#         - My Role
+#     - name: users
+#   users:
+#     - username: jdoe
+#       name: John Doe
+#       email: jdoe@example.com
+#       passwordEnv: JDOE_PASSWORD
+#       groups:
+#         - admins
+
+# Additional hand-written blueprints, passed through verbatim as extra
+# keys of the ConfigMap. Key must end in .yaml to be discovered.
+extraBlueprints: {}
+#  custom-flow.yaml: |
+#    version: 1
+#    metadata:
+#      name: custom-flow
+#    entries: []

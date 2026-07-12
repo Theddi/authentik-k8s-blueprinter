@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMapName }}
+  labels:
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+{{- if .Values.forwardAuth.apps }}
+  forwardauth.yaml: |
+{{ include "blueprinter.forwardauth" . | indent 4 }}
+{{- end }}
+{{- if .Values.oidcApps }}
+  oidc.yaml: |
+{{ include "blueprinter.oidc" . | indent 4 }}
+{{- end }}
+{{- if or .Values.rbac.roles .Values.rbac.groups .Values.rbac.users }}
+  rbac.yaml: |
+{{ include "blueprinter.rbac" . | indent 4 }}
+{{- end }}
+{{- range $file, $content := .Values.extraBlueprints }}
+  {{ $file }}: |
+{{ $content | indent 4 }}
+{{- end }}

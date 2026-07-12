@@ -1,0 +1,9 @@
+apiVersion: v2
+name: authentik-k8s-blueprinter
+description: >-
+  Generates a single ConfigMap of authentik blueprints (forward-auth
+  providers + embedded outpost, OIDC providers, roles/groups/users) from
+  compact values, for mounting via the authentik helm chart's
+  blueprints.configMaps.
+type: application
+version: 0.1.0
