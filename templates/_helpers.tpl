@@ -267,7 +267,7 @@ entries:
       name: first-login-done-marker
     attrs:
       field_key: attributes.{{ $attr }}
-      label: ""
+      label: Setup complete
       type: hidden
       required: false
       order: 90
