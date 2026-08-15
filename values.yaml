@@ -41,6 +41,7 @@ forwardAuth:
   #   - name: myapp # -> https://myapp.example.com, slug myapp, provider myapp-provider
   #   - name: other
   #     host: https://other-host.example.com # optional hostname override
+  #     groups: [x] # When access.enabled allows users with group x to access app
 
 # OIDC app list
 # Each entry generates an oauth2 provider "<name>-provider" (confidential, authorization_code + refresh_token)
@@ -56,6 +57,7 @@ oidcApps: []
 #       - https://myapp.example.com/oidc/callback
 #     envPrefix: MYAPP_OIDC     # optional override
 #     scopes: [openid, profile] # optional, defaults to authentik.defaultScopes
+#     groups: [x] # When access.enabled allows users with group x to login to app
 
 # Roles, groups and users. KeyOf references are derived from names
 # (lowercased, spaces to dashes), so groups can reference roles and users

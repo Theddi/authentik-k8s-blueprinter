@@ -1,6 +1,9 @@
 # Authentik Kubernetes Blueprinter
 A Helm Chart to create a ConfigMap containing Blueprints for [Authentik on Kubernetes](https://docs.goauthentik.io/install-config/install/kubernetes/)
 
+## Disclaimer: AI Usage
+This helm chart was written using Claude Code.
+
 ## Prerequisites
 This chart was tested only with Traefik's GatewayAPI (Middleware in HTTPRoutes)
 
