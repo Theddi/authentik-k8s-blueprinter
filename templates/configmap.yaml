@@ -14,6 +14,10 @@ data:
   oidc.yaml: |
 {{ include "blueprinter.oidc" . | indent 4 }}
 {{- end }}
+{{- if .Values.firstLogin.enabled }}
+  firstlogin.yaml: |
+{{ include "blueprinter.firstlogin" . | indent 4 }}
+{{- end }}
 {{- if or .Values.rbac.roles .Values.rbac.groups .Values.rbac.users }}
   rbac.yaml: |
 {{ include "blueprinter.rbac" . | indent 4 }}

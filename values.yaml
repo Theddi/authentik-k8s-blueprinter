@@ -59,11 +59,25 @@ oidcApps: []
 #     scopes: [openid, profile] # optional, defaults to authentik.defaultScopes
 #     groups: [x] # When access.enabled allows users with group x to login to app
 
+# Force a username/email/password change on first login.
+# Users are prompted until the flow writes attributes.<attribute> = true, so the
+# marker must NOT be seeded in rbac.users attrs — the blueprint re-enforces what
+# it declares on every apply, which would make the prompt permanent.
+# Injected into the authentication flow between MFA (30) and login (100).
+firstLogin:
+  enabled: false
+  flow: default-authentication-flow
+  order: 50
+  attribute: setup_complete
+
 # Roles, groups and users. KeyOf references are derived from names
 # (lowercased, spaces to dashes), so groups can reference roles and users
 # can reference groups defined here. User passwords are managed only when
 # passwordEnv is set (again an !Env into the worker environment) — note
-# the blueprint then ENFORCES that password on every apply.
+# the blueprint then ENFORCES that password on every apply. For humans who
+# will change their own password use state: created instead of the default
+# present:
+# state: created writes the object once and never updates it again.
 rbac: {}
 #   roles:
 #     - My Role
@@ -75,6 +89,7 @@ rbac: {}
 #     - name: users
 #   users:
 #     - username: jdoe
+#       state: created   # optional; default present (re-applies every sync)
 #       name: John Doe
 #       email: jdoe@example.com
 #       passwordEnv: JDOE_PASSWORD
