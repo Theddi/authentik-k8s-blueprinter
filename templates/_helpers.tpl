@@ -27,6 +27,7 @@ entries:
       invalidation_flow: !Find [authentik_flows.flow, [slug, {{ $.Values.authentik.invalidationFlow }}]]
   - model: authentik_core.application
     state: present
+    id: {{ .name }}-app
     identifiers:
       slug: {{ .name }}
     attrs:
@@ -42,6 +43,7 @@ entries:
 {{- range .Values.forwardAuth.apps }}
         - !KeyOf {{ .name }}-provider
 {{- end }}
+{{- include "blueprinter.access" (dict "apps" .Values.forwardAuth.apps "access" .Values.access) }}
 {{- end -}}
 
 {{/* oidc.yaml — oauth2 providers and applications */}}
@@ -78,11 +80,55 @@ entries:
 {{- end }}
   - model: authentik_core.application
     state: present
+    id: {{ .name }}-app
     identifiers:
       slug: {{ .name }}
     attrs:
       name: {{ .name }}
       provider: !KeyOf {{ .name }}-provider
+{{- end }}
+{{- include "blueprinter.access" (dict "apps" .Values.oidcApps "access" .Values.access) }}
+{{- end -}}
+
+{{/* Per-application access control. Authentik allows every authenticated user
+     when an application has no policy bindings, and superusers get NO bypass in
+     the policy engine (PolicyBinding.passes is a plain membership check) — so
+     deny-by-default means binding groups to every application, admin group
+     included. Engine mode "any": one passing binding grants access. */}}
+{{- define "blueprinter.access" -}}
+{{- $access := .access | default dict -}}
+{{- if $access.enabled }}
+{{- $groups := dict -}}
+{{- range .apps }}{{- range (.groups | default list) }}{{- $_ := set $groups . true }}{{- end }}{{- end }}
+{{- range $g := (keys $groups | sortAlpha) }}
+  - model: authentik_core.group
+    state: present
+    id: access-group-{{ include "blueprinter.slug" $g }}
+    identifiers:
+      name: {{ $g }}
+{{- end }}
+{{- range $app := .apps }}
+{{- if $access.adminGroup }}
+  - model: authentik_policies.policybinding
+    state: present
+    identifiers:
+      target: !KeyOf {{ $app.name }}-app
+      group: !Find [authentik_core.group, [name, {{ $access.adminGroup }}]]
+    attrs:
+      order: 0
+      enabled: true
+{{- end }}
+{{- range $idx, $g := ($app.groups | default list) }}
+  - model: authentik_policies.policybinding
+    state: present
+    identifiers:
+      target: !KeyOf {{ $app.name }}-app
+      group: !KeyOf access-group-{{ include "blueprinter.slug" $g }}
+    attrs:
+      order: {{ add 10 $idx }}
+      enabled: true
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end -}}
 

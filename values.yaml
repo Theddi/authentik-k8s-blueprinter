@@ -17,6 +17,20 @@ authentik:
     - profile
     - email
 
+# Per-application access control (deny by default).
+# Authentik grants every authenticated user access to an application that has
+# no policy bindings, and superusers get no bypass from the policy engine.
+# When enabled, every generated application (forwardAuth + oidc) gets a group
+# policy binding for adminGroup, plus one per entry in the app's optional
+# `groups:` list — which is then the ONLY way in. Groups referenced in app
+# `groups` are auto-created; adminGroup is not (define it in rbac or use a
+# built-in like "authentik Admins").
+# Removing a group from an app removes it from the blueprint but NOT from
+# authentik — delete the stale binding in the admin UI.
+access:
+  enabled: false
+  adminGroup: authentik Admins
+
 # Forward-auth app list
 # Each entry generates a proxy provider "<name>-provider" (mode
 # forward_single), an application with slug "<name>", and registers the
