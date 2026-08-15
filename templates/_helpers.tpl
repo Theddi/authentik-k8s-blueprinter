@@ -304,6 +304,8 @@ entries:
         pending = request.user
         if not pending or not pending.is_authenticated:
             return False
+        if pending.username in {{ $fl.excludeUsers | default list | toJson }}:
+            return False
         return not pending.attributes.get("{{ $attr }}", False)
 
   - model: authentik_flows.flowstagebinding

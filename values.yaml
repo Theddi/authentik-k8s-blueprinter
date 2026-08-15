@@ -69,6 +69,8 @@ firstLogin:
   flow: default-authentication-flow
   order: 50
   attribute: setup_complete
+  # Exclude usernames from the firstLogin change prompt
+  excludeUsers: []
 
 # Roles, groups and users. KeyOf references are derived from names
 # (lowercased, spaces to dashes), so groups can reference roles and users

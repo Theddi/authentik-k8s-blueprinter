@@ -6,4 +6,4 @@ description: >-
   compact values, for mounting via the authentik helm chart's
   blueprints.configMaps.
 type: application
-version: 0.3.1
+version: 0.3.2
